@@ -5,7 +5,7 @@ body {
   height: 100vh;
   overflow: hidden;
   background: black;
-  font-family: "Rubik", sans-serif;
+  font-family: 'Rubik', sans-serif;
 }
 
 .video-container {
@@ -30,7 +30,7 @@ body {
   justify-content: flex-end;
   min-height: 40vh;
   /* Thanks to theArtifacts */
-  background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.9));
+  background: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0.9)); 
   transition: opacity 0.5s linear;
 }
 
@@ -51,7 +51,7 @@ body {
   width: 90vw;
   height: 1vw;
   max-height: 7px;
-  background: #5b5b5b;
+  background: #5B5B5B;
   display: flex;
   align-items: center;
   cursor: pointer;
@@ -59,7 +59,7 @@ body {
 
 .video-container .progress-controls .progress-bar .watched-bar,
 .video-container .progress-controls .progress-bar .playhead {
-  background: #e31221;
+  background: #E31221;
   display: inline-block;
   transition: all 0.2s;
 }
@@ -150,13 +150,13 @@ body {
 }
 
 .video-container .controls .title .series {
-  color: #fefefe;
+  color: #FEFEFE;
   font-weight: bold;
   font-size: 1em;
 }
 
 .video-container .controls .title .episode {
-  color: #a1a1a1;
+  color: #A1A1A1;
   font-size: 0.75em;
   padding-left: 1vw;
 }
