@@ -82,7 +82,7 @@ const showHide = (show, hide) => {
 
 const toggleMute = () => {
   const { video, mutedButton, fullVolumeButton } = uiElements;
-  video.muted ? showHide(mutedButton, fullVolumeButton) : showHide(fullVolumeButton, mutedButton);
+  video.muted ? showHide(fullVolumeButton, mutedButton) : showHide(mutedButton, fullVolumeButton);
   video.muted = !video.muted;
 };
 
