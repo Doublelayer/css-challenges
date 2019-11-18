@@ -1,138 +1,174 @@
-const videoContainer = document.querySelector('.video-container');
-const video = document.querySelector('.video-container video');
+const init = () => {
+  bindUiActions();
+  uiElements.watchedBar.style.width = '0px';
+  uiElements.pauseButton.classList.add('hide');
+  uiElements.minimizeButton.classList.add('hide');
+  uiElements.mutedButton.classList.add('hide');
+};
 
-const controlsContainer = document.querySelector('.video-container .controls-container');
+const getElement = path => {
+  return document.querySelector(path);
+};
 
-const playPauseButton = document.querySelector('.video-container .controls button.play-pause');
-const rewindButton = document.querySelector('.video-container .controls button.rewind');
-const fastForwardButton = document.querySelector('.video-container .controls button.fast-forward');
-const volumeButton = document.querySelector('.video-container .controls button.volume');
-const fullScreenButton = document.querySelector('.video-container .controls button.full-screen');
-const playButton = playPauseButton.querySelector('.playing');
-const pauseButton = playPauseButton.querySelector('.paused');
-const fullVolumeButton = volumeButton.querySelector('.full-volume');
-const mutedButton = volumeButton.querySelector('.muted');
-const maximizeButton = fullScreenButton.querySelector('.maximize');
-const minimizeButton = fullScreenButton.querySelector('.minimize');
+const uiElements = {
+  document: document,
+  body: document.body,
+  videoContainer: getElement('.video-container'),
+  video: getElement('.video-container video'),
+  controlsContainer: getElement('.video-container .controls-container'),
+  fastForwardButton: getElement('.video-container .controls button.fast-forward'),
+  fullScreenButton: getElement('.video-container .controls button.full-screen'),
+  playPauseButton: getElement('.video-container .controls button.play-pause'),
+  rewindButton: getElement('.video-container .controls button.rewind'),
+  volumeButton: getElement('.video-container .controls button.volume'),
+  fullVolumeButton: getElement('.video-container .controls button.volume .full-volume'),
+  maximizeButton: getElement('.video-container .controls button.full-screen .maximize'),
+  minimizeButton: getElement('.video-container .controls button.full-screen .minimize'),
+  playButton: getElement('.video-container .controls button.play-pause .playing'),
+  pauseButton: getElement('.video-container .controls button.play-pause .paused'),
+  mutedButton: getElement('.video-container .controls button.volume .muted'),
+  watchedBar: getElement('.video-container .progress-controls .progress-bar .watched-bar'),
+  progressBar: getElement('.video-container .progress-controls .progress-bar'),
+  timeLeft: getElement('.video-container .progress-controls .time-remaining')
+};
 
-
-const progressBar = document.querySelector('.video-container .progress-controls .progress-bar');
-const watchedBar = document.querySelector('.video-container .progress-controls .progress-bar .watched-bar');
-const timeLeft = document.querySelector('.video-container .progress-controls .time-remaining');
-
-let controlsTimeout;
-controlsContainer.style.opacity = '0';
-watchedBar.style.width = '0px';
-pauseButton.style.display = 'none';
-minimizeButton.style.display = 'none';
+const bindUiActions = () => {
+  uiElements.document.addEventListener('mousemove', displayControls);
+  uiElements.document.addEventListener('keyup', handleKeyUp);
+  uiElements.video.addEventListener('timeupdate', handleTimeUpdate);
+  uiElements.progressBar.addEventListener('click', handleProgessBarClicked);
+  uiElements.playPauseButton.addEventListener('click', handlePlayPause);
+  uiElements.rewindButton.addEventListener('click', handleRewind);
+  uiElements.fastForwardButton.addEventListener('click', handleForward);
+  uiElements.volumeButton.addEventListener('click', toggleMute);
+  uiElements.fullScreenButton.addEventListener('click', toggleFullScreen);
+};
 
 const displayControls = () => {
+  const { controlsContainer, body } = uiElements;
+
+  let controlsTimeout;
   controlsContainer.style.opacity = '1';
-  document.body.style.cursor = 'initial';
-  if (controlsTimeout) {
-    clearTimeout(controlsTimeout);
-  }
+  body.style.cursor = 'initial';
+
+  controlsTimeout && clearTimeout(controlsTimeout);
+
   controlsTimeout = setTimeout(() => {
     controlsContainer.style.opacity = '0';
-    document.body.style.cursor = 'none';
+    body.style.cursor = 'none';
   }, 5000);
 };
 
-const playPause = () => {
-  if (video.paused) {
-    video.play();
-    playButton.style.display = 'none';
-    pauseButton.style.display = '';
-  } else {
-    video.pause();
-    playButton.style.display = '';
-    pauseButton.style.display = 'none';
-  }
+const handlePlayPause = () => {
+  uiElements.video.paused ? play() : pause();
+};
+
+const play = () => {
+  uiElements.video.play();
+  showHide(uiElements.pauseButton, uiElements.playButton);
+};
+
+const pause = () => {
+  uiElements.video.pause();
+  showHide(uiElements.playButton, uiElements.pauseButton);
+};
+
+const showHide = (show, hide) => {
+  show.classList.add('show');
+  show.classList.remove('hide');
+  hide.classList.add('hide');
+  hide.classList.remove('show');
 };
 
 const toggleMute = () => {
+  const { video, mutedButton, fullVolumeButton } = uiElements;
+  video.muted ? showHide(mutedButton, fullVolumeButton) : showHide(fullVolumeButton, mutedButton);
   video.muted = !video.muted;
-  if (video.muted) {
-    fullVolumeButton.style.display = 'none';
-    mutedButton.style.display = '';
-  } else {
-    fullVolumeButton.style.display = '';
-    mutedButton.style.display = 'none';
-  }
 };
 
 const toggleFullScreen = () => {
-  if (!document.fullscreenElement) {
-    videoContainer.requestFullscreen();
-  } else {
-    document.exitFullscreen();
-  }
+  document.fullscreenElement ? exitFullScreen() : requesFullScreen();
 };
 
-document.addEventListener('fullscreenchange', () => {
-  if (!document.fullscreenElement) {
-    maximizeButton.style.display = '';
-    minimizeButton.style.display = 'none';
-  } else {
-    maximizeButton.style.display = 'none';
-    minimizeButton.style.display = '';
-  }
-});
+const exitFullScreen = () => {
+  document.exitFullscreen();
+  showHide(uiElements.maximizeButton, uiElements.minimizeButton);
+};
 
-document.addEventListener('keyup', (event) => {
-  if (event.code === 'Space') {
-    playPause(); 
-  }
+const requesFullScreen = () => {
+  uiElements.videoContainer.requestFullscreen();
+  showHide(uiElements.minimizeButton, uiElements.maximizeButton);
+};
 
-  if (event.code === 'KeyM') {
-    toggleMute();
-  }
-
-  if (event.code === 'KeyF') {
-    toggleFullScreen();
+const handleKeyUp = event => {
+  switch (event.code) {
+    case 'Space':
+      handlePlayPause();
+      break;
+    case 'KeyM':
+      toggleMute();
+      break;
+    case 'KeyF':
+      toggleFullScreen();
+      break;
+    case 'ArrowRight':
+      handleForward();
+      break;
+    case 'ArrowLeft':
+      handleRewind();
+      break;
   }
 
   displayControls();
-});
+};
 
-document.addEventListener('mousemove', () => {
-  displayControls();
-});
+const handleTimeUpdate = () => {
+  const { video, watchedBar, timeLeft } = uiElements;
 
-video.addEventListener('timeupdate', () => {
-  watchedBar.style.width = ((video.currentTime / video.duration) * 100) + '%';
+  watchedBar.style.width = (video.currentTime / video.duration) * 100 + '%';
   // TODO: calculate hours as well...
   const totalSecondsRemaining = video.duration - video.currentTime;
   // THANK YOU: BEGANOVICH
   const time = new Date(null);
+
   time.setSeconds(totalSecondsRemaining);
+
   let hours = null;
 
-  if(totalSecondsRemaining >= 3600) {
-    hours = (time.getHours().toString()).padStart('2', '0');
+  if (totalSecondsRemaining >= 3600) {
+    hours = time
+      .getHours()
+      .toString()
+      .padStart('2', '0');
   }
 
-  let minutes = (time.getMinutes().toString()).padStart('2', '0');
-  let seconds = (time.getSeconds().toString()).padStart('2', '0');
+  let minutes = time
+    .getMinutes()
+    .toString()
+    .padStart('2', '0');
 
-  timeLeft.textContent = `${hours ? hours : '00'}:${minutes}:${seconds}`;
-});
+  let seconds = time
+    .getSeconds()
+    .toString()
+    .padStart('2', '0');
 
-progressBar.addEventListener('click', (event) => {
-  const pos = (event.pageX  - (progressBar.offsetLeft + progressBar.offsetParent.offsetLeft)) / progressBar.offsetWidth;
-  video.currentTime = pos * video.duration;
-});
+  timeLeft.textContent = `${hours ? hours + ':' : ''}${minutes}:${seconds}`;
+};
 
-playPauseButton.addEventListener('click', playPause);
+const handleProgessBarClicked = () => {
+  uiElements.video.currentTime = getMousePositionOnProgressbar() * uiElements.video.duration;
+};
 
-rewindButton.addEventListener('click', () => {
-  video.currentTime -= 10;
-});
+const handleRewind = () => {
+  uiElements.video.currentTime -= 10;
+};
+const handleForward = () => {
+  uiElements.video.currentTime += 10;
+};
 
-fastForwardButton.addEventListener('click', () => {
-  video.currentTime += 10;
-});
+const getMousePositionOnProgressbar = () => {
+  const progressBar = uiElements.progressBar;
+  return (event.pageX - (progressBar.offsetLeft + progressBar.offsetParent.offsetLeft)) / progressBar.offsetWidth;
+};
 
-volumeButton.addEventListener('click', toggleMute);
-
-fullScreenButton.addEventListener('click', toggleFullScreen);
+init();
